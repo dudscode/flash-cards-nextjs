@@ -1,5 +1,6 @@
 import "./globals.css";
 import { ThemeProvider } from "../components/client/theme-providers";
+import { Header } from "@/components/server/header";
 
 
 
@@ -17,6 +18,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Header />
           {children}
         </ThemeProvider>
       </body>
