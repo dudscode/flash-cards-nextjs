@@ -1,10 +1,12 @@
-import { Card, CardTitle, CardDescription } from "../ui/card";
+import { Card, CardDescription } from "../ui/card";
 
-export function CardBack() {
+export interface CardBackProps {
+  descricao: string;
+}
+export function CardBack({descricao}: CardBackProps) {
   return (
-      <Card className="flex justify-center items-center p-4 h-40 w-64">
-        <CardTitle className="font-sans text-4xl text-color-primary" >Back</CardTitle>
-        <CardDescription>OI OI</CardDescription>
+      <Card className="flex justify-center items-center p-4 h-80 w-100">
+        <CardDescription>{descricao}</CardDescription>
       </Card>
   )
 }
