@@ -1,4 +1,4 @@
-name: Deploy BLUE
+name: Deploy BLUE & GREEN
 
 on:
   push:
@@ -35,7 +35,57 @@ jobs:
         run: |
           aws s3 sync out/ s3://${{ vars.PROJECT_NAME }}-blue --delete
 
-      - name: Invalidate CloudFront cache
+      - name: Invalidate CloudFront cache (BLUE)
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+  await-approval:
+    needs: deploy-blue
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aguardar aprovação manual
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: ${{ github.actor }}
+          minimum-approvals: 1
+          issue-title: "Deploy para GREEN - Aprovação necessária"
+          issue-body: "Por favor, revise o deploy no ambiente BLUE e aprove para prosseguir com o deploy no GREEN."
+
+  deploy-green:
+    needs: await-approval
+    runs-on: ubuntu-latest
+
+    env:
+      NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+      NEXT_PUBLIC_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_AUTH_DOMAIN }}
+      NEXT_PUBLIC_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_PROJECT_ID }}
+      NEXT_PUBLIC_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_STORAGE_BUCKET }}
+      NEXT_PUBLIC_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_MESSAGING_SENDER_ID }}
+      NEXT_PUBLIC_APP_ID: ${{ secrets.NEXT_PUBLIC_APP_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+      - run: npm run build
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to GREEN
+        run: |
+          aws s3 sync out/ s3://${{ vars.PROJECT_NAME }}-green --delete
+
+      - name: Invalidate CloudFront cache (GREEN)
         run: |
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
