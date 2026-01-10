@@ -54,7 +54,7 @@ export function CreatedFlashCard() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectGroup>
-                            <SelectLabel>Fruits</SelectLabel>
+                            <SelectLabel>ANY</SelectLabel>
                             <SelectItem value="frontend">Frontend</SelectItem>
                             <SelectItem value="backend">Backend</SelectItem>
                             <SelectItem value="devops">DevOps</SelectItem>
