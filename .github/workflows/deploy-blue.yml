@@ -41,22 +41,10 @@ jobs:
             --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/*"
 
-  await-approval:
+  deploy-green:
     needs: deploy-blue
     runs-on: ubuntu-latest
-    steps:
-      - name: Aguardar aprovação manual
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ github.TOKEN }}
-          approvers: ${{ github.actor }}
-          minimum-approvals: 1
-          issue-title: "Deploy para GREEN - Aprovação necessária"
-          issue-body: "Por favor, revise o deploy no ambiente BLUE e aprove para prosseguir com o deploy no GREEN."
-
-  deploy-green:
-    needs: await-approval
-    runs-on: ubuntu-latest
+    environment: production
 
     env:
       NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
