@@ -39,7 +39,7 @@ export function CardsIntro() {
                 cards.map((card) => (
                     <Link href={card.disabled ? "/construction" : card.href} key={card.title}>
                         <Card className="flex justify-center items-center p-4 h-40 w-64" >
-                            <CardTitle className="font-sans text-4xl text-green-700" >{card.title}</CardTitle>
+                            <CardTitle className="font-sans text-4xl text-blue-700" >{card.title}</CardTitle>
                             <CardDescription>{card.description}</CardDescription>
                         </Card>
                     </Link>
